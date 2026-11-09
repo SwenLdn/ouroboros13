@@ -1,0 +1,97 @@
+#pragma std
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <cstdint>
+
+namespace HardwareGeometry {
+
+// 11x11 Hardware-Matrix (121 diskrete Zellen / Modulo 121)
+constexpr std::size_t MATRIX_DIM = 11;
+constexpr std::size_t MATRIX_CELLS = MATRIX_DIM * MATRIX_DIM; // 121
+
+// 5-Digit Nengo Maske (20-Bit Fenster: 0x00000 bis 0xFFFFF)
+constexpr std::uint32_t NENGO_5DIGIT_MASK = 0xFFFFF;
+
+// Sichere obere Registergrenze strikt unter 2^64 (IEEE 754 Float-Overflow Guard)
+constexpr std::uint64_t MAX_SAFE_REGISTER = 18446744073709549568ULL;
+
+struct NengoPhaseState {
+    std::uint32_t raw_5digit_offset; // Isolierter 5-Digit Hex-Wert
+    std::uint32_t mod121_cell;       // Zellen-Index auf dem 11x11 Grid (0..120)
+    std::size_t grid_row;            // Zeile (0..10)
+    std::size_t grid_col;            // Spalte (0..10)
+    bool is_fermat_locked;           // Fermat-11 Verriegelungs-Status
+};
+
+class NengoPhaseLockEngine {
+private:
+    // Sovereign Midpoint LSB 20-Bit Anker (0x120A0 -> 5-Digit Hex-Basis von P_mid)
+    static constexpr std::uint32_t P_MID_LSB5 = 0x120A0;
+
+public:
+    constexpr NengoPhaseLockEngine() noexcept = default;
+
+    // Evaluiert einen Phasen-Takt-Schritt in O(1) ohne Fließkomma-Arithmetik
+    [[nodiscard]] constexpr NengoPhaseState process_phase_step(std::uint64_t phase_step) const noexcept {
+        // 1. Bitweise Maskierung auf das 5-Digit Nengo-Fenster (20 Bit)
+        const std::uint32_t nengo_window = static_cast<std::uint32_t>(P_MID_LSB5 + phase_step) & NENGO_5DIGIT_MASK;
+
+        // 2. Projektion auf die 11x11 Hardware-Matrix über Modulo 121
+        const std::uint32_t cell = nengo_window % MATRIX_CELLS;
+        const std::size_t row = cell / MATRIX_DIM;
+        const std::size_t col = cell % MATRIX_DIM;
+
+        // 3. Fermat-11 Verriegelungs-Prüfung (Mod 11 Rest == 0 oder 10)
+        const std::uint32_t mod11 = cell % MATRIX_DIM;
+        const bool fermat_locked = (mod11 == 0 || mod11 == 10);
+
+        return NengoPhaseState{nengo_window, cell, row, col, fermat_locked};
+    }
+
+    // Konsolen-Visualisierung der 11x11 Hardware-Matrix
+    void render_matrix(const NengoPhaseState& state) const {
+        std::cout << "\n================ 11x11 HARDWARE MATRIX (NENGO GRID) ================\n";
+        std::cout << "  5-Digit Nengo Fenster: 0x" << std::hex << std::uppercase 
+                  << std::setw(5) << std::setfill('0') << state.raw_5digit_offset 
+                  << std::dec << " | Zelle: " << std::setw(3) << state.mod121_cell 
+                  << " (" << state.grid_row << "," << state.grid_col << ")"
+                  << " | Fermat-Lock: " << (state.is_fermat_locked ? "[ LOCKED ]" : "UNLOCKED") << "\n";
+        std::cout << "--------------------------------------------------------------------\n";
+
+        for (std::size_t r = 0; r < MATRIX_DIM; ++r) {
+            std::cout << "  ";
+            for (std::size_t c = 0; c < MATRIX_DIM; ++c) {
+                if (r == state.grid_row && c == state.grid_col) {
+                    std::cout << "[*] "; // Aktiver Phasen-Lock-Punkt
+                } else if ((r * MATRIX_DIM + c) % MATRIX_DIM == 0) {
+                    std::cout << " .  "; // Fermat-Knotenpunkte
+                } else {
+                    std::cout << " ·  ";
+                }
+            }
+            std::cout << "\n";
+        }
+        std::cout << "====================================================================\n";
+    }
+};
+
+} // namespace HardwareGeometry
+
+int main() {
+    HardwareGeometry::NengoPhaseLockEngine engine;
+
+    std::cout << "=== C++20 HARDWARE-REGISTER & NENGO 5-DIGIT PHASE LOCK ===" << std::endl;
+    std::cout << "Latenzfreie O(1) Einrastung auf der 11x11 Matrix\n";
+
+    // Test-Phasenabstände (z.B. 0, 3600 steps [10-Jahres Lag], 3608 steps [Fermat-Takt])
+    const std::vector<std::uint64_t> test_steps = {0, 3600, 3608, 6530, 12100};
+
+    for (const auto step : test_steps) {
+        std::cout << "\n>>> Phasen-Offset: " << std::dec << step << " Takt-Einheiten";
+        const auto state = engine.process_phase_step(step);
+        engine.render_matrix(state);
+    }
+
+    return 0;
+}

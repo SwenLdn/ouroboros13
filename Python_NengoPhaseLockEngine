@@ -1,0 +1,38 @@
+class NengoPhaseLockEngine:
+    MATRIX_DIM = 11
+    MATRIX_CELLS = 121
+    NENGO_5DIGIT_MASK = 0xFFFFF
+    P_MID_LSB5 = 0x120A0
+
+    def __init__(self):
+        pass
+
+    def process_phase_step(self, phase_step: int) -> dict:
+        # 1. Bitweise Maskierung auf das 20-Bit Nengo-Fenster (Gegenstück zum C++ Cast & Mask)
+        nengo_window = (self.P_MID_LSB5 + phase_step) & self.NENGO_5DIGIT_MASK
+
+        # 2. Projektion auf die 11x11 Hardware-Matrix über Modulo 121
+        cell = nengo_window % self.MATRIX_CELLS
+        row = cell // self.MATRIX_DIM
+        col = cell % self.MATRIX_DIM
+
+        # 3. Fermat-11 Verriegelungs-Prüfung (Mod 11 Rest == 0 oder 10)
+        mod11 = cell % self.MATRIX_DIM
+        fermat_locked = (mod11 == 0 or mod11 == 10)
+
+        return {
+            "raw_5digit_offset": f"0x{nengo_window:05X}",
+            "mod121_cell": cell,
+            "grid_row": row,
+            "grid_col": col,
+            "is_fermat_locked": fermat_locked
+        }
+
+# --- Verifikation der C++ Testvektoren ---
+engine = NengoPhaseLockEngine()
+test_steps = [0, 3600, 3608, 6530, 12100]
+
+print("=== VERIFIKATION DER PYTHON-NENGOPHASELOCKENGINE ===")
+for step in test_steps:
+    res = engine.process_phase_step(step)
+    print(f"Offset: {step:5d} -> {res['raw_5digit_offset']} | Zelle: {res['mod121_cell']:3d} | Koordinate: ({res['grid_row']},{res['grid_col']}) | Fermat-Lock: {res['is_fermat_locked']}")

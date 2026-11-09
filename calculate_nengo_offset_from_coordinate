@@ -1,0 +1,34 @@
+def calculate_nengo_offset_from_coordinate(y: int, x: int) -> int:
+    """
+    Berechnet den Takt-Schritt (Offset k) in O(1) aus den Gitter-Koordinaten (Y, X).
+    
+    Formel:
+        Zelle = Y * 11 + X
+        k = (Zelle - 78) % 121
+    """
+    grid_dim = 11
+    total_cells = 121
+    base_cell = 78  # Entspricht der Basis-Zelle an Koordinate (7, 1)
+    
+    # Bestimme den flachen Zellen-Index
+    cell_index = y * grid_dim + x
+    
+    # Berechne den Takt-Schritt k über das Modulo-Verhältnis am Pol
+    k = (cell_index - base_cell) % total_cells
+    return k
+
+# --- Verifikation und Demonstration mit den Testpunkten des Benutzers ---
+test_coordinates = [
+    ((7, 10), 9),   # Kanten-Wechsel
+    ((8, 0), 10),   # Zeilenumbruch
+    ((10, 10), 42), # Letzte Zelle
+    ((0, 0), 43),   # System-Reset
+    ((1, 0), 54)    # Fortlaufender Takt
+]
+
+print("=== VERIFIKATION DER O(1) KOORDINATEN-INVERSION ===")
+for coord, expected_k in test_coordinates:
+    y, x = coord
+    computed_k = calculate_nengo_offset_from_coordinate(y, x)
+    match = (computed_k == expected_k)
+    print(f"Koordinate (Y={y:2d}, X={x:2d}) -> Berechnetes k: {computed_k:2d} | Soll-k: {expected_k:2d} | Match: {'OK 💎' if match else 'Fehler 🛑'}")

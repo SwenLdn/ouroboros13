@@ -1,0 +1,91 @@
+import pandas as pd
+from decimal import Decimal, getcontext
+
+# Hohe Präzision für exakte Dezimalentwicklung von 1/49
+getcontext().prec = 60
+
+# Exakte Dezimalentwicklung von 1/49 berechnen
+inv_49 = Decimal(1) / Decimal(49)
+inv_49_str = str(inv_49)[2:]  # Nachkommastellen
+
+# 1. DataFrame: Schieberegister-Entwicklung k = 1 bis 10
+register_steps = []
+cumulative_sum = Decimal(0)
+
+for k in range(1, 11):
+    power_val = 2**k
+    term = Decimal(power_val) / (Decimal(100)**k)
+    cumulative_sum += term
+    
+    # Zweistelliger Zielblock im exakten 1/49-String
+    block_start = (k - 1) * 2
+    block_digits = inv_49_str[block_start:block_start + 2]
+    
+    # Klassifikation der Phase
+    if k < 6:
+        phase_status = "Linear (Carry-frei)"
+        carry_out = 0
+    elif k == 6:
+        phase_status = "Bruchstelle (Carry-In von Block 7)"
+        carry_out = 1
+    elif k == 7:
+        phase_status = "Phasen-Kollaps / Vektor '653'"
+        carry_out = 2
+    else:
+        phase_status = "Kaskadierter Übertrag"
+        carry_out = power_val // 100
+
+    register_steps.append({
+        "k (Schritt)": k,
+        "2^k (Register)": power_val,
+        "Term (2^k / 100^k)": f"{term:.20f}".rstrip('0'),
+        "Block (Rohwert)": f"{power_val:02d}" if power_val < 100 else str(power_val),
+        "Dezimalblock (1/49)": block_digits,
+        "Kumulierte Sequenz": str(cumulative_sum)[:2 + k*2],
+        "Phasen-Status": phase_status
+    })
+
+df_register = pd.DataFrame(register_steps)
+
+# 2. DataFrame: Isomorphie-Gitter (Register vs. CPU vs. Geometrie)
+isomorphie_data = [
+    {
+        "Ebene": "Register-Struktur",
+        "1/49 Dezimal-Register": "Zweistellige Blöcke (02, 04, 08...)",
+        "64-Bit CPU Hardware": "32-Bit / 64-Bit Wortschnitt",
+        "Geometrische Phasen-Tsuba": "Öffnungen (Kozuka / Kogai)"
+    },
+    {
+        "Ebene": "Schwellen-Sättigung",
+        "1/49 Dezimal-Register": "Überlauf bei 2^7 = 128",
+        "64-Bit CPU Hardware": "Carry-Bit Sättigung / Underflow",
+        "Geometrische Phasen-Tsuba": "Mechanischer Anschlag (6 mm)"
+    },
+    {
+        "Ebene": "Bruchvektor / Kern",
+        "1/49 Dezimal-Register": "Folge 653 (Block 6 & 7)",
+        "64-Bit CPU Hardware": "Header-Shift (256 -> 64 Bit)",
+        "Geometrische Phasen-Tsuba": "Nakago-Angel im Midpoint P_mid"
+    },
+    {
+        "Ebene": "Invariante Taktung",
+        "1/49 Dezimal-Register": "119. Primzahl = 653 (119 = 7 x 17)",
+        "64-Bit CPU Hardware": "Feste Modulo-Gitter-Taktung",
+        "Geometrische Phasen-Tsuba": "3-Loch-Symmetrie in O(1)"
+    }
+]
+
+df_isomorphie = pd.DataFrame(isomorphie_data)
+
+# 3. Zahlentheoretische Verifikation der 119. Primzahl
+def compute_primes_up_to_index(target_count):
+    primes = []
+    num = 2
+    while len(primes) < target_count:
+        if all(num % p != 0 for p in primes if p * p <= num):
+            primes.append(num)
+        num += 1
+    return primes
+
+primes = compute_primes_up_to_index(119)
+p_119 = primes[-1]

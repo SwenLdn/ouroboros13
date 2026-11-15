@@ -1,0 +1,63 @@
+#include <stdint.h>
+#include <stdio.h>
+
+// Struktur zur Repräsentation des mathematisch komprimierten Zustands (4 Bytes)
+typedef struct {
+    uint8_t L;         // Rekursionsebene
+    uint8_t voxel[3];  // Die 3 invarianten Nutz-Voxel (v0, v1, v2)
+} FractalHexState;
+
+// Konstante für das implizite Phasen-Padding '3' (ASCII 0x33)
+#define PHASEN_PADDING 0x33
+
+/**
+ * Berechnet das Zeichen an einem beliebigen Index x in O(1) Laufzeit
+ * und O(1) Speicherplatzkomplexität ohne physikalische Expansion.
+ */
+inline uint8_t get_virtual_char(const FractalHexState* state, uint64_t x) {
+    // 2^L berechnen via Bit-Shift
+    uint64_t layer_size = (1ULL << state->L);
+    
+    // Mathematische Prüfung: (x + 1) ist ein Vielfaches von 2^L
+    // Da layer_size eine Zweierpotenz ist, optimieren wir modulo zu einem bitweisen UND
+    if (((x + 1) & (layer_size - 1)) == 0) {
+        // Index des Voxels berechnen: i = ((x + 1) / 2^L) - 1
+        // Division wird durch einen bitweisen Shift ersetzt
+        uint64_t i = ((x + 1) >> state->L) - 1;
+        
+        // Sicherheits-Guard: Da i im Bereich [0, 2] liegen muss
+        if (i < 3) {
+            return state->voxel[i];
+        }
+    }
+    
+    // Falls die Gitter-Geometrie nicht matcht, befinden wir uns auf der Trägerwelle
+    return PHASEN_PADDING;
+}
+
+int main() {
+    // Beispielkonfiguration für Ebene 9 laut Datensatz
+    // Nutzinformation frei wählbar, hier symbolisch 'A', 'B', 'C'
+    FractalHexState state = {
+        .L = 9,
+        .voxel = {'A', 'B', 'C'}
+    };
+
+    // Gesamtlänge des expandierten Strings berechnen (3 * 2^L)
+    uint64_t total_length = 3ULL * (1ULL << state.L); // 3 * 512 = 1536 Bytes
+    
+    printf("Virtuelle Dekompression für Ebene %d (Länge: %llu Bytes)\n", state.L, total_length);
+    printf("Nutzdaten-Indizes laut mathematischer Gitter-Geometrie:\n");
+
+    // Testzugriff auf die exakten Voxel-Indizes aus dem Datensatz von Ebene 9
+    uint64_t test_indices[3] = {511, 1023, 1535};
+    for (int i = 0; i < 3; i++) {
+        uint8_t c = get_virtual_char(&state, test_indices[i]);
+        printf("  Index %4llu: %c (Voxel %d)\n", test_indices[i], c, i);
+    }
+
+    // Testzugriff auf ein Phasen-Padding-Zeichen dazwischen
+    printf("  Index  500: %c (Phasen-Padding)\n", get_virtual_char(&state, 500));
+
+    return 0;
+}

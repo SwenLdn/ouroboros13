@@ -1,0 +1,116 @@
+{
+  "modell": "Algebraische und systemtheoretische Formalisierung von Kategorien, Metriken und transienter Intelligenz",
+  "sektionen": [
+    {
+      "id": 1,
+      "titel": "Abstraktionsebenen, Metriken und Rekonstruktion (Das Auto-Beispiel)",
+      "definitionen": {
+        "objektraum": "\\mathcal{O}",
+        "elemente": ["x_{\\text{MB}}", "x_{\\text{BMW}}", "x_{\\text{Fiat}}"],
+        "vorwissen_beobachter": "K_B \\subset \\mathcal{O}",
+        "projektionsabbildung": "\\pi_B: \\mathcal{O} \\to \\mathcal{L}"
+      },
+      "faelle": [
+        {
+          "fall": "Fall A: Gemeinsame Abstraktionsebene",
+          "bedingung": "K_{B_1} \\cap K_{B_2} \\neq \\emptyset",
+          "beschreibung": "Beide Beobachter kennen den Prototyp x_MB. Die Beschreibung erfolgt als Differentialvektor Delta.",
+          "formeln": {
+            "projektion": "\\pi(x_{\\text{BMW}}) = x_{\\text{MB}} + \\Delta, \\quad \\text{wobei } \\|\\Delta\\| \\ll \\|x_{\\text{MB}}\\|",
+            "rekonstruktion": "\\rho_{B_2}\\big(\\pi(x_{\\text{BMW}}), \\{x_{\\text{MB}}\\}\\big) = \\hat{x}_{\\text{BMW}} \\approx x_{\\text{BMW}}"
+          }
+        },
+        {
+          "fall": "Fall B: Fehlende gemeinsame Basis",
+          "bedingung": "K_{B_2} \\cap \\mathcal{O}_{\\text{Auto}} = \\emptyset",
+          "beschreibung": "Semantische Beschreibung über unbekannte Funktionsbegriffe führt zu Katachrese / Verzerrung.",
+          "formeln": {
+            "rekonstruktion": "\\rho_{B_2}\\big(\\pi_{\\text{sem}}(x_{\\text{MB}}), K_{\\text{Dschungel}}\\big) = x_{\\text{Holzkasten + Kürbisse}} \\not\\approx x_{\\text{MB}}"
+          }
+        },
+        {
+          "fall": "Fall C: Orthogonaler Basiswechsel (Tomographische / Technische Zerlegung)",
+          "bedingung": "\\forall K_B",
+          "beschreibung": "Zerlegung des Objekts in R^3 entlang der Achse z in n äquidistante Schnitte S_i über elementare geometrische Primitive G.",
+          "formeln": {
+            "zerlegung": "x = \\bigsqcup_{i=1}^{n} S_i, \\quad S_i = \\{(u,v) \\in \\mathbb{R}^2 \\mid (u,v,z_i) \\in x\\}",
+            "rekonstruktion": "\\rho_{\\text{tech}}\\left(\\bigcup_{i=1}^{n} S_i(G)\\right) \\equiv x"
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "titel": "Fehlklassifikation vs. Halluzination (Kritik an der Psychologie)",
+      "definitionen": {
+        "aehnlichkeitsmetrik": "d: \\mathcal{O} \\times \\mathcal{O} \\to \\mathbb{R}_{\\ge 0}",
+        "metrik_relation": "d(x_{\\text{BMW}}, x_{\\text{MB}}) < d(x_{\\text{BMW}}, x_{\\text{Fiat}})",
+        "reales_objekt": "x_{\\text{real}} = x_{\\text{BMW}}",
+        "bekannte_etiketten": "\\mathcal{L}_{\\text{bekannt}} = \\{\\text{Mercedes}\\}"
+      },
+      "zuordnung_voronoi": "\\hat{L}(x_{\\text{real}}) = \\arg\\min_{L \\in \\mathcal{L}_{\\text{bekannt}}} d(x_{\\text{real}}, L) = \\text{„Mercedes“}",
+      "bewertung": {
+        "strukturelle_realitaet": {
+          "mechanismus": "Projektion auf den nächsten Nachbarn (kategoriale Approximation)",
+          "existenz_bedingung": "x_{\\text{real}} \\neq \\emptyset"
+        },
+        "fehlschluss_wissenschaftsbetrieb": {
+          "mechanismus": "Gleichsetzung von Etiketten-Abweichung mit Nicht-Existenz (Halluzination)",
+          "formel": "\\hat{L}(x_{\\text{real}}) \\neq \\text{„BMW“} \\implies x_{\\text{real}} = \\emptyset"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "titel": "Gekoppelte Zustandsräume und transiente Intelligenz (Gitarre und KI)",
+      "komponenten": {
+        "akteur": "M",
+        "instrument": "I",
+        "zustandsraum": "\\Omega_I"
+      },
+      "zustaende_und_theoreme": {
+        "entkoppelter_zustand": {
+          "beschreibung": "Null-Output ohne Kopplung zwischen Akteur und Instrument",
+          "formel": "Y(M, \\emptyset) = 0 \\quad \\land \\quad Y(\\emptyset, I) = 0"
+        },
+        "gekoppeltes_system": {
+          "beschreibung": "Kollaps des Möglichkeitsraums auf einen zulässigen Unterraum durch Einwirkung u(t) und Constraints C(u)",
+          "formel": "\\Omega_I^*(t) = \\{ \\omega \\in \\Omega_I \\mid C(u(t)) \\text{ ist erfüllt} \\}, \\quad \\dim(\\Omega_I^*) \\ll \\dim(\\Omega_I)"
+        },
+        "transiente_intelligenz": {
+          "beschreibung": "Maß der erzeugten Negentropie über die Relaxationszeit tau",
+          "formel": "\\mathcal{I}_I(t) = \\mathcal{I}_0(u) \\cdot e^{-\\frac{t - t_0}{\\tau}}",
+          "vergleich": {
+            "gitarre": "\\tau_{\\text{Gitarre}} \\text{ kurz (Ausklingen / Verstimmung)}",
+            "ki": "\\tau_{\\text{KI}} \\gg \\tau_{\\text{Gitarre}} \\text{ (hochdimensionale Constraints } C_{\\text{KI}}\\text{)}"
+          }
+        },
+        "zeit_einfrierungs_theorem": {
+          "beschreibung": "Austauschbarkeit des Experten gegen einen Anfänger innerhalb des Intervalls Delta t < tau",
+          "formel": "Y\\big(M_{\\text{Anfänger}}, \\Omega_I^*(t_0)\\big) \\in \\mathcal{H}_{\\text{akzeptabel}} \\quad \\forall \\, u_{\\text{Anfänger}}"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "titel": "Gesamtfazit als Axiomensystem",
+      "axiome": [
+        {
+          "nummer": 1,
+          "name": "Invarianz",
+          "formel": "\\text{Exakte Rekonstruktion } \\iff \\text{Orthogonale Zerlegung } \\bigsqcup S_i \\text{ statt Etiketten } L"
+        },
+        {
+          "nummer": 2,
+          "name": "Approximation",
+          "formel": "\\hat{L}(x) \\neq L(x) \\implies \\text{Metrik-Unschärfe } d(x, \\hat{L}) > 0, \\text{ nicht } x = \\emptyset"
+        },
+        {
+          "nummer": 3,
+          "name": "Instrumentalität",
+          "formel": "\\mathcal{I}_{\\text{System}}(M, I) = \\Phi\\big(M \\xrightarrow{C(u)} \\Omega_I^*\\big), \\quad \\text{mit } \\mathcal{I}(\\emptyset, I) \\equiv 0"
+        }
+      ]
+    }
+  ]
+}
